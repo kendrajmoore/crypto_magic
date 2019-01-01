@@ -5,13 +5,17 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "next dev"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "ganache-cli": "^6.2.5",
     "mocha": "^5.2.0",
+    "next": "^7.0.2",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0",
     "truffle-hdwallet-provider": "0.0.3",
     "web3": "^1.0.0-beta.35"
   }
