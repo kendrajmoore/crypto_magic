@@ -1,5 +1,13 @@
-import React from "react";
+import React, { Component } from "react";
+import factory from "../ethereum/factory";
 
-export default () => {
-  return <h1>This is the index route</h1>;
-};
+class GameIndex extends Component {
+  async componentDidMount() {
+    const campaign = await factory.methods.getGames().call();
+  }
+  render() {
+    return <div>Games</div>;
+  }
+}
+
+export default GameIndex;
