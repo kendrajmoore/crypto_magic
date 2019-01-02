@@ -3,13 +3,13 @@ const ganache = require("ganache-cli");
 const Web3 = require("web3");
 const web3 = new Web3(ganache.provider());
 
-const compiledFactory = require("../ethereum/build/CampaignFactory.json");
-const compiledCampaign = require("../ethereum/build/Campaign.json");
+const compiledFactory = require("../ethereum/build/GameFactory.json");
+const compiledGame = require("../ethereum/build/Game.json");
 
 let accounts;
 let factory;
-let campaignAddress;
-let campaign;
+let gameAddress;
+let game;
 
 beforeEach(async () => {
   accounts = await web3.eth.getAccounts();
@@ -18,41 +18,41 @@ beforeEach(async () => {
     .deploy({ data: compiledFactory.bytecode })
     .send({ from: accounts[0], gas: "1000000" });
 
-  await factory.methods.createCampaign("100").send({
+  await factory.methods.createGame("100").send({
     from: accounts[0],
     gas: "1000000"
   });
 
-  [campaignAddress] = await factory.methods.getDeployedCampaigns().call();
-  campaign = await new web3.eth.Contract(
-    JSON.parse(compiledCampaign.interface),
-    campaignAddress
+  [gameAddress] = await factory.methods.getDeployedGames().call();
+  game = await new web3.eth.Contract(
+    JSON.parse(compiledGame.interface),
+    gameAddress
   );
 });
 
-describe("Campaigns", () => {
-  it("deploys a factory and a campaign", () => {
+describe("Games", () => {
+  it("deploys a factory and a game", () => {
     assert.ok(factory.options.address);
-    assert.ok(campaign.options.address);
+    assert.ok(game.options.address);
   });
 
-  it("marks caller as the campaign manager", async () => {
-    const manager = await campaign.methods.manager().call();
+  it("marks caller as the game manager", async () => {
+    const manager = await game.methods.manager().call();
     assert.equal(accounts[0], manager);
   });
 
   it("allows people to contribute money and marks them as approvers", async () => {
-    await campaign.methods.contribute().send({
+    await game.methods.contribute().send({
       value: "200",
       from: accounts[1]
     });
-    const isContributor = await campaign.methods.approvers(accounts[1]).call();
+    const isContributor = await game.methods.approvers(accounts[1]).call();
     assert(isContributor);
   });
 
   it("requires a minimum contribution", async () => {
     try {
-      await campaign.methods.contribute().send({
+      await game.methods.contribute().send({
         value: "5",
         from: accounts[1]
       });
@@ -63,33 +63,31 @@ describe("Campaigns", () => {
   });
 
   it("allows a manager to make a payment request", async () => {
-    await campaign.methods
-      .createRequest("Buy batteries", "100", accounts[1])
-      .send({
-        from: accounts[0],
-        gas: "1000000"
-      });
-    const request = await campaign.methods.requests(0).call();
+    await game.methods.createRequest("Buy batteries", "100", accounts[1]).send({
+      from: accounts[0],
+      gas: "1000000"
+    });
+    const request = await game.methods.requests(0).call();
 
     assert.equal("Buy batteries", request.description);
   });
 
   it("processes requests", async () => {
-    await campaign.methods.contribute().send({
+    await game.methods.contribute().send({
       from: accounts[0],
       value: web3.utils.toWei("10", "ether")
     });
 
-    await campaign.methods
+    await game.methods
       .createRequest("A", web3.utils.toWei("5", "ether"), accounts[1])
       .send({ from: accounts[0], gas: "1000000" });
 
-    await campaign.methods.approveRequest(0).send({
+    await game.methods.approveRequest(0).send({
       from: accounts[0],
       gas: "1000000"
     });
 
-    await campaign.methods.finalizeRequest(0).send({
+    await game.methods.finalizeRequest(0).send({
       from: accounts[0],
       gas: "1000000"
     });

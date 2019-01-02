@@ -1,6 +1,6 @@
 const HDWalletProvider = require("truffle-hdwallet-provider");
 const Web3 = require("web3");
-const { interface, bytecode } = require("./compile");
+const compiledFactory = require("./build/GameFactory.json");
 
 const provider = new HDWalletProvider(
   "replace holiday cement burger vacant nuclear six rocket provide unveil fiber deal",
@@ -14,8 +14,10 @@ const deploy = async () => {
 
   console.log("Deploying", accounts[0]);
 
-  const result = await new web3.eth.Contract(JSON.parse(interface))
-    .deploy({ data: bytecode, arguments: ["Hi there"] })
+  const result = await new web3.eth.Contract(
+    JSON.parse(compiledFactory.interface)
+  )
+    .deploy({ data: compiledFactory.bytecode })
     .send({ gas: "1000000", from: accounts[0] });
 
   console.log("Deployed", result.options.address);
