@@ -3,7 +3,7 @@ import factory from "../ethereum/factory";
 
 class GameIndex extends Component {
   async componentDidMount() {
-    const campaign = await factory.methods.getGames().call();
+    const games = await factory.methods.getDeployedGames().call();
   }
   render() {
     return <div>Games</div>;
